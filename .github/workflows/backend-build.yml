@@ -1,0 +1,59 @@
+name: Backend build
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - enhancement/*
+      - bugfix/*
+      - hotfix/*
+      - release/*
+      - test/*
+      - refactor/*
+      - ci/*
+      - style/*
+      - docs/*
+      - chore/*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: main
+
+      - name: Checkout seaotterms-db
+        uses: actions/checkout@v5
+        with:
+          repository: peter910820/seaotterms-db
+          path: seaottermsdb
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.0"
+          cache-dependency-path: main/go.sum
+
+      - name: Link Local Dependencies
+        run: |
+            cd main/backend
+            if [ -d "../seaottermsdb" ]; then
+              echo "Linking seaotterms-db to ../seaottermsdb"
+              go mod edit -replace seaotterms-db=../seaottermsdb
+            fi
+            
+            echo "Updated go.mod content:"
+            cat go.mod
+
+      - name: Build
+        run: |
+          cd main/backend
+          go build -v ./...
+
+      # - name: Test
+      #   run: go test -v ./...
