@@ -87,7 +87,7 @@ func main() {
 	// route group
 	apiGroup := app.Group("/api") // main api route group
 	// api router
-	router.ApiRouter(apiGroup)
+	router.ApiRouter(apiGroup, store)
 	router.LoginRouter(apiGroup, store)
 
 	/* --------------------------------- */
