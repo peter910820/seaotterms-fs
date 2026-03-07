@@ -6,9 +6,15 @@ type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
+type ZipRequest struct {
+	FloderName string `json:"floderName"`
+}
+
 type Response struct {
-	Message string `json:"message"`
-	Data    any    `json:"data"`
+	Message   string    `json:"message"`
+	TimeStamp time.Time `json:"timeStamp"`
+	Data      any       `json:"data"`
 }
 
 type LoginResponse struct {
@@ -20,9 +26,10 @@ type LoginResponse struct {
 	CreateName string    `gorm:"NOT NULL" json:"createName"`
 }
 
-func InitResponse() Response {
+func GenerateResponse(message string, data any) Response {
 	return Response{
-		Message: "",
-		Data:    nil,
+		Message:   message,
+		TimeStamp: time.Now(),
+		Data:      data,
 	}
 }

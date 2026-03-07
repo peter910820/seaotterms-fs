@@ -1,4 +1,4 @@
-package api
+package service
 
 import (
 	"errors"
@@ -20,12 +20,9 @@ import (
 func Login(c *fiber.Ctx, store *session.Store) error {
 	var data model.LoginRequest
 
-	response := model.InitResponse()
-
 	if err := c.BodyParser(&data); err != nil {
 		slog.Error(err.Error())
-		response.Message = err.Error()
-		return c.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 	}
 
 	userData, err := auth.FindUserByUsername(config.Dbs.DB, strings.ToLower(data.Username))
@@ -33,12 +30,10 @@ func Login(c *fiber.Ctx, store *session.Store) error {
 		// user record not found
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			slog.Error("user not found")
-			response.Message = "user not found"
-			return c.Status(fiber.StatusNotFound).JSON(response)
+			return c.Status(fiber.StatusNotFound).JSON(model.GenerateResponse("user not found", nil))
 		} else {
 			slog.Error(err.Error())
-			response.Message = err.Error()
-			return c.Status(fiber.StatusBadRequest).JSON(response)
+			return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 		}
 	}
 
@@ -46,8 +41,7 @@ func Login(c *fiber.Ctx, store *session.Store) error {
 	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password))
 	if err != nil {
 		slog.Error("login error, password not correct")
-		response.Message = err.Error()
-		return c.Status(fiber.StatusUnauthorized).JSON(response)
+		return c.Status(fiber.StatusUnauthorized).JSON(model.GenerateResponse(err.Error(), nil))
 	}
 	// set session
 	sess, err := store.Get(c)
@@ -62,8 +56,7 @@ func Login(c *fiber.Ctx, store *session.Store) error {
 	}
 	slog.Info(fmt.Sprintf("Username %s login success", data.Username))
 
-	response.Message = "Login Success"
-	response.Data = model.LoginResponse{
+	loginResp := model.LoginResponse{
 		Username:   userData.Username,
 		Email:      userData.Email,
 		Avatar:     userData.Avatar,
@@ -71,7 +64,7 @@ func Login(c *fiber.Ctx, store *session.Store) error {
 		CreatedAt:  userData.CreatedAt,
 	}
 
-	return c.JSON(response)
+	return c.JSON(model.GenerateResponse("Login Success", loginResp))
 }
 
 /* utils */

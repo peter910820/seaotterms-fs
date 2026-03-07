@@ -1,7 +1,7 @@
 package router
 
 import (
-	"seaottermsfs/api"
+	"seaottermsfs/service"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -10,6 +10,6 @@ import (
 func LoginRouter(routerGroup fiber.Router, store *session.Store) {
 	loginGroup := routerGroup.Group("/login")
 	loginGroup.Post("/", func(c *fiber.Ctx) error {
-		return api.Login(c, store)
+		return service.Login(c, store)
 	})
 }

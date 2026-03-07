@@ -14,9 +14,7 @@ func LoginRequired(store *session.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if !isLogin(c, store) {
 			slog.Warn("user not login")
-			return c.Status(fiber.StatusUnauthorized).JSON(model.Response{
-				Message: "請登入後再執行以下操作",
-			})
+			return c.Status(fiber.StatusUnauthorized).JSON(model.GenerateResponse("請登入後再執行以下操作", nil))
 		}
 		return c.Next()
 	}
