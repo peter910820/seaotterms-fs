@@ -12,8 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"fs.seaotterms.com-backend/internal/config"
-	"fs.seaotterms.com-backend/internal/router"
+	"seaottermsfs/config"
+	"seaottermsfs/router"
 )
 
 var (

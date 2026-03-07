@@ -9,16 +9,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"fs.seaotterms.com-backend/internal/dto"
-	"fs.seaotterms.com-backend/internal/model"
-	"fs.seaotterms.com-backend/internal/utils"
+	"seaottermsfs/model"
 )
 
 func Login(c *fiber.Ctx, store *session.Store, db *gorm.DB) error {
-	var data dto.LoginRequest
+	var data model.LoginRequest
 	var databaseData []model.User
 
-	response := utils.InitResponse()
+	response := model.InitResponse()
 
 	if err := c.BodyParser(&data); err != nil {
 		logrus.Error(err)
@@ -55,7 +53,7 @@ func Login(c *fiber.Ctx, store *session.Store, db *gorm.DB) error {
 			logrus.Infof("Username %s login success", data.Username)
 
 			response.Message = "Login Success"
-			response.Data = dto.LoginResponse{
+			response.Data = model.LoginResponse{
 				Username:   col.Username,
 				Email:      col.Email,
 				Avatar:     col.Avatar,

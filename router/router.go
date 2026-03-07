@@ -3,7 +3,8 @@ package router
 import (
 	"os"
 
-	"fs.seaotterms.com-backend/internal/api"
+	"seaottermsfs/api"
+
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"

@@ -41,7 +41,7 @@ jobs:
 
       - name: Link Local Dependencies
         run: |
-            cd main/backend
+            cd main
             if [ -d "../seaottermsdb" ]; then
               echo "Linking seaotterms-db to ../seaottermsdb"
               go mod edit -replace seaotterms-db=../seaottermsdb
@@ -52,7 +52,7 @@ jobs:
 
       - name: Build
         run: |
-          cd main/backend
+          cd main
           go build -v ./...
 
       # - name: Test

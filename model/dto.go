@@ -1,7 +1,11 @@
-package dto
+package model
 
 import "time"
 
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 type Response struct {
 	Message string `json:"message"`
 	Data    any    `json:"data"`
@@ -14,4 +18,11 @@ type LoginResponse struct {
 	Management bool      `gorm:"default:false" json:"management"`
 	CreatedAt  time.Time `gorm:"autoCreateTime" json:"createdAt"`
 	CreateName string    `gorm:"NOT NULL" json:"createName"`
+}
+
+func InitResponse() Response {
+	return Response{
+		Message: "",
+		Data:    nil,
+	}
 }
