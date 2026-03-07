@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/lmittmann/tint v1.1.3
 	golang.org/x/crypto v0.48.0
 	gorm.io/gorm v1.31.1
 	seaotterms-db v0.0.0
@@ -30,7 +31,6 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.20 // indirect
-	github.com/sirupsen/logrus v1.9.4
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect

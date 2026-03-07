@@ -2,12 +2,12 @@ package api
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 )
 
 func GetDirectory(c *fiber.Ctx) error {
@@ -15,7 +15,7 @@ func GetDirectory(c *fiber.Ctx) error {
 	var dirName []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			logrus.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 		if info.IsDir() {
@@ -24,7 +24,7 @@ func GetDirectory(c *fiber.Ctx) error {
 		return nil
 	})
 	if err != nil {
-		logrus.Error(err)
+		slog.Error(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg": err.Error(),
 		})
@@ -49,7 +49,7 @@ func GetFiles(c *fiber.Ctx) error {
 	}
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			logrus.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 		if !info.IsDir() {
@@ -58,7 +58,7 @@ func GetFiles(c *fiber.Ctx) error {
 		return nil
 	})
 	if err != nil {
-		logrus.Error(err)
+		slog.Error(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg": err.Error(),
 		})
@@ -72,7 +72,7 @@ func UploadFile(c *fiber.Ctx) error {
 	directory := c.FormValue("directory")
 	file, err := c.FormFile("file")
 	if err != nil {
-		logrus.Error(err)
+		slog.Error(err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"msg": "uploaded failed",
 		})
@@ -90,7 +90,7 @@ func UploadFile(c *fiber.Ctx) error {
 			"msg": "uploaded failed",
 		})
 	}
-	logrus.Info(fmt.Sprintf("%s 上傳成功，大小為 %d Bytes", file.Filename, file.Size))
+	slog.Info(fmt.Sprintf("%s 上傳成功，大小為 %d Bytes", file.Filename, file.Size))
 	directory = strings.ReplaceAll(directory, "\\", "/")
 	err = c.SaveFile(file, fmt.Sprintf("./%s/%s", directory, file.Filename))
 	if err != nil {

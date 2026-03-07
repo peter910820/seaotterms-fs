@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
+	"github.com/lmittmann/tint"
 
 	"seaottermsfs/config"
 	"seaottermsfs/router"
@@ -34,22 +35,28 @@ func init() {
 	os.MkdirAll("./resource/test", os.ModePerm)
 	err := godotenv.Load()
 	if err != nil {
-		logrus.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
-	// logrus settings
-	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors:   true,
-		FullTimestamp: true,
-	})
-	logrus.SetLevel(logrus.DebugLevel)
+
+	w := os.Stderr
+	logger := slog.New(
+		tint.NewHandler(w, &tint.Options{
+			Level:      slog.LevelDebug,
+			TimeFormat: time.Stamp,
+		}),
+	)
+	slog.SetDefault(logger)
 }
 
 func main() {
-	// init db connection
 	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
 	if err != nil {
-		logrus.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
+
+	// init db connection
 	config.Dbs, err = seaottermsdb.InitDsn(seaottermsdb.ConnectDBConfig{
 		Owner:    os.Getenv("DB_OWNER"),
 		Password: os.Getenv("DB_PASSWORD"),
@@ -57,8 +64,10 @@ func main() {
 		Port:     dbPort,
 	})
 	if err != nil {
-		logrus.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
+
 	// migration
 	seaottermsdb.Migration(config.Dbs)
 
@@ -87,5 +96,9 @@ func main() {
 		return c.SendFile(frontendFolder + "/index.html")
 	})
 
-	logrus.Fatal(app.Listen(fmt.Sprintf("127.0.0.1:%s", os.Getenv("PORT"))))
+	addr := fmt.Sprintf("127.0.0.1:%s", os.Getenv("PORT"))
+	if err := app.Listen(addr); err != nil {
+		slog.Error("start fiber server error", "address", addr, "error", err)
+		os.Exit(1)
+	}
 }
