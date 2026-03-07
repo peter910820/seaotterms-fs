@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,22 +11,21 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 
 	"seaottermsfs/config"
 	"seaottermsfs/router"
+
+	seaottermsdb "seaotterms-db"
 )
 
 var (
+	// set frontendFolder
+	frontendFolder string = "./dist"
 	// init store(session)
 	store = session.New(session.Config{
 		Expiration: 12 * time.Hour,
 		// CookieHTTPOnly: true,
 	})
-	// management database connect
-	dbs = make(map[string]*gorm.DB)
-	// set frontendFolder
-	frontendFolder string = "./dist"
 )
 
 func init() {
@@ -45,9 +45,22 @@ func init() {
 }
 
 func main() {
-	// init dsn
-	dbName, db := config.InitDsn()
-	dbs[dbName] = db
+	// init db connection
+	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	config.Dbs, err = seaottermsdb.InitDsn(seaottermsdb.ConnectDBConfig{
+		Owner:    os.Getenv("DB_OWNER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
+		Port:     dbPort,
+	})
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	// migration
+	seaottermsdb.Migration(config.Dbs)
 
 	app := fiber.New(
 		fiber.Config{
@@ -66,7 +79,7 @@ func main() {
 	apiGroup := app.Group("/api") // main api route group
 	// api router
 	router.ApiRouter(apiGroup)
-	router.LoginRouter(apiGroup, store, dbs)
+	router.LoginRouter(apiGroup, store)
 
 	/* --------------------------------- */
 	// match all routes

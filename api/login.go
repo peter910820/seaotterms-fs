@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -9,12 +10,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	"seaotterms-db/auth"
+	"seaottermsfs/config"
 	"seaottermsfs/model"
 )
 
-func Login(c *fiber.Ctx, store *session.Store, db *gorm.DB) error {
+func Login(c *fiber.Ctx, store *session.Store) error {
 	var data model.LoginRequest
-	var databaseData []model.User
 
 	response := model.InitResponse()
 
@@ -24,50 +26,48 @@ func Login(c *fiber.Ctx, store *session.Store, db *gorm.DB) error {
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	r := db.Model(&model.User{}).Find(&databaseData)
-	if r.Error != nil {
-		logrus.Error(r.Error)
-		response.Message = r.Error.Error()
-		return c.Status(fiber.StatusInternalServerError).JSON(response)
-	}
-
-	data.Username = strings.ToLower(data.Username)
-	for _, col := range databaseData {
-		if data.Username == col.Username {
-			logrus.Infof("Username %s try to login", data.Username)
-			err := bcrypt.CompareHashAndPassword([]byte(col.Password), []byte(data.Password))
-			if err != nil {
-				logrus.Error("login error, password not correct")
-				response.Message = err.Error()
-				return c.Status(fiber.StatusUnauthorized).JSON(response)
-			}
-			// set session
-			sess, err := store.Get(c)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-			sess.Set("username", data.Username)
-			if err := sess.Save(); err != nil {
-				logrus.Fatal(err)
-			}
-			logrus.Infof("Username %s login success", data.Username)
-
-			response.Message = "Login Success"
-			response.Data = model.LoginResponse{
-				Username:   col.Username,
-				Email:      col.Email,
-				Avatar:     col.Avatar,
-				Management: col.Management,
-				CreatedAt:  col.CreatedAt,
-				CreateName: col.CreateName,
-			}
-
-			return c.JSON(response)
+	userData, err := auth.FindUserByUsername(config.Dbs.DB, strings.ToLower(data.Username))
+	if err != nil {
+		// user record not found
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Error("user not found")
+			response.Message = "user not found"
+			return c.Status(fiber.StatusNotFound).JSON(response)
+		} else {
+			logrus.Error(err)
+			response.Message = err.Error()
+			return c.Status(fiber.StatusBadRequest).JSON(response)
 		}
 	}
-	logrus.Error("user not found")
-	response.Message = "user not found"
-	return c.Status(fiber.StatusNotFound).JSON(response)
+
+	logrus.Infof("Username %s try to login", data.Username)
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password))
+	if err != nil {
+		logrus.Error("login error, password not correct")
+		response.Message = err.Error()
+		return c.Status(fiber.StatusUnauthorized).JSON(response)
+	}
+	// set session
+	sess, err := store.Get(c)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	sess.Set("username", data.Username)
+	if err := sess.Save(); err != nil {
+		logrus.Fatal(err)
+	}
+	logrus.Infof("Username %s login success", data.Username)
+
+	response.Message = "Login Success"
+	response.Data = model.LoginResponse{
+		Username:   userData.Username,
+		Email:      userData.Email,
+		Avatar:     userData.Avatar,
+		Management: userData.IsAdmin,
+		CreatedAt:  userData.CreatedAt,
+	}
+
+	return c.JSON(response)
 }
 
 /* utils */
