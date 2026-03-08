@@ -18,8 +18,4 @@ func ApiRouter(routerGroup fiber.Router, store *session.Store) {
 	routerGroup.Post("/upload", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.UploadFile(c)
 	})
-
-	routerGroup.Post("/zip", middleware.LoginRequired(store), func(c fiber.Ctx) error {
-		return service.ZipFiles(c)
-	})
 }

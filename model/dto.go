@@ -7,10 +7,6 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-type ZipRequest struct {
-	FloderName string `json:"floderName"`
-}
-
 type Response struct {
 	Message   string    `json:"message"`
 	TimeStamp time.Time `json:"timeStamp"`
