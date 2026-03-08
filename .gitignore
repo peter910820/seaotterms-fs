@@ -54,7 +54,5 @@ backend/go.work.sum
 # env file
 .env
 
-# front-end static file
-backend/dist/
-# resource dir
-backend/resource/
+# test floder
+/zip/
