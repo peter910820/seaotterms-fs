@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-func ZipFiles(c *fiber.Ctx) error {
+func ZipFiles(c fiber.Ctx) error {
 	var data model.ZipRequest
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.Bind().Body(&data); err != nil {
 		slog.Error(err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 	}

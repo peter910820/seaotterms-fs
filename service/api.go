@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
-func GetDirectory(c *fiber.Ctx) error {
+func GetDirectory(c fiber.Ctx) error {
 	dir := "./resource"
 	var dirName []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -34,7 +34,7 @@ func GetDirectory(c *fiber.Ctx) error {
 	})
 }
 
-func GetFiles(c *fiber.Ctx) error {
+func GetFiles(c fiber.Ctx) error {
 	folder := c.Query("folder")
 	dir := "./resource"
 	fileName := []string{}
@@ -68,7 +68,7 @@ func GetFiles(c *fiber.Ctx) error {
 	})
 }
 
-func UploadFile(c *fiber.Ctx) error {
+func UploadFile(c fiber.Ctx) error {
 	directory := c.FormValue("directory")
 	file, err := c.FormFile("file")
 	if err != nil {

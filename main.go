@@ -7,9 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3/middleware/static"
+
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/session"
 	"github.com/joho/godotenv"
 	"github.com/lmittmann/tint"
 
@@ -23,8 +25,8 @@ var (
 	// set frontendFolder
 	frontendFolder string = "./dist"
 	// init store(session)
-	store = session.New(session.Config{
-		Expiration: 12 * time.Hour,
+	store = session.NewStore(session.Config{
+		IdleTimeout: 12 * time.Hour,
 		// CookieHTTPOnly: true,
 	})
 )
@@ -76,13 +78,13 @@ func main() {
 			BodyLimit: 20 * 1024 * 1024, // 20MB
 		})
 
-	app.Static("/resource", "./resource")
+	app.Get("/resource*", static.New("./resource"))
 
-	app.Use(cors.New(cors.Config{AllowOrigins: "http://localhost:8080",
-		AllowMethods: "POST"}))
+	app.Use(cors.New(cors.Config{AllowOrigins: []string{"http://localhost:8080"},
+		AllowMethods: []string{"POST"}}))
 
 	// static folder
-	app.Static("/", frontendFolder)
+	app.Use("/", static.New(frontendFolder))
 
 	// route group
 	apiGroup := app.Group("/api") // main api route group
@@ -92,7 +94,7 @@ func main() {
 
 	/* --------------------------------- */
 	// match all routes
-	app.Get("*", func(c *fiber.Ctx) error {
+	app.Get("*", func(c fiber.Ctx) error {
 		return c.SendFile(frontendFolder + "/index.html")
 	})
 

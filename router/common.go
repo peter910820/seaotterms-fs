@@ -4,22 +4,22 @@ import (
 	"seaottermsfs/middleware"
 	"seaottermsfs/service"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/session"
 )
 
 func ApiRouter(routerGroup fiber.Router, store *session.Store) {
-	routerGroup.Get("/directory", middleware.LoginRequired(store), func(c *fiber.Ctx) error {
+	routerGroup.Get("/directory", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.GetDirectory(c)
 	})
-	routerGroup.Get("/files", middleware.LoginRequired(store), func(c *fiber.Ctx) error {
+	routerGroup.Get("/files", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.GetFiles(c)
 	})
-	routerGroup.Post("/upload", middleware.LoginRequired(store), func(c *fiber.Ctx) error {
+	routerGroup.Post("/upload", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.UploadFile(c)
 	})
 
-	routerGroup.Post("/zip", middleware.LoginRequired(store), func(c *fiber.Ctx) error {
+	routerGroup.Post("/zip", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.ZipFiles(c)
 	})
 }

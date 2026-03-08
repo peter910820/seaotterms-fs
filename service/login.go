@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/session"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
@@ -17,10 +17,10 @@ import (
 	"seaottermsfs/model"
 )
 
-func Login(c *fiber.Ctx, store *session.Store) error {
+func Login(c fiber.Ctx, store *session.Store) error {
 	var data model.LoginRequest
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.Bind().Body(&data); err != nil {
 		slog.Error(err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 	}
