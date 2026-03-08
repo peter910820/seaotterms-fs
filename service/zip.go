@@ -28,7 +28,7 @@ func ZipFiles(c fiber.Ctx) error {
 	// verify that the parsed path is actually inside rootPath
 	sourcePath := filepath.Join(rootPath, folderName)
 	rel, err := filepath.Rel(rootPath, sourcePath)
-	if err != nil || strings.HasPrefix(rel, "..") || rel == "." {
+	if err != nil || strings.Contains(rel, "..") || rel == "." {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}
 

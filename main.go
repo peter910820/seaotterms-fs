@@ -93,6 +93,7 @@ func main() {
 	// api router
 	router.ApiV1Router(apiV1Group, store)
 	router.ZipRouter(apiV2Group, store)
+	router.FileRouter(apiV2Group, store)
 	router.LoginRouter(apiV2Group, store)
 
 	/* --------------------------------- */

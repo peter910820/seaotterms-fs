@@ -22,6 +22,11 @@ type LoginResponse struct {
 	CreateName string    `gorm:"NOT NULL" json:"createName"`
 }
 
+type FileResponse struct {
+	Files       []string `json:"files"`
+	Directories []string `json:"directories"`
+}
+
 func GenerateResponse(message string, data any) Response {
 	return Response{
 		Message:   message,
