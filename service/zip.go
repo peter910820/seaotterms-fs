@@ -15,14 +15,12 @@ import (
 )
 
 // zip target floder files
-func ZipFiles(c fiber.Ctx) error {
-	folderNameParam := strings.TrimSpace(c.Params("folderName"))
-	if folderNameParam == "" {
+func ZipFiles(c fiber.Ctx, folderName string) error {
+	if folderName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("請提供資料夾名稱", nil))
 	}
-
 	rootPath := os.Getenv("FILE_PATH")
-	folderName := filepath.Clean(folderNameParam)
+	folderName = filepath.Clean(folderName)
 
 	// prevent path traversal
 	// verify that the parsed path is actually inside rootPath

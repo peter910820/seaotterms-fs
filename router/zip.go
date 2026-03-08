@@ -3,6 +3,7 @@ package router
 import (
 	"seaottermsfs/middleware"
 	"seaottermsfs/service"
+	"strings"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/session"
@@ -16,6 +17,7 @@ func ZipRouter(routerGroup fiber.Router, store *session.Store) {
 	})
 
 	zipGroup.Post("/:folderName", middleware.LoginRequired(store), func(c fiber.Ctx) error {
-		return service.ZipFiles(c)
+		folderName := strings.TrimSpace(c.Params("folderName"))
+		return service.ZipFiles(c, folderName)
 	})
 }
