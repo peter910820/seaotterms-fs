@@ -1,7 +1,7 @@
 {
-  "name": "fs.seaotterms.com",
+  "name": "seaottermsfs",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "yarn lint && yarn type-check && vite",
@@ -11,20 +11,19 @@
     "type-check": "vue-tsc -b --noEmit"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "axios": "^1.9.0",
     "highlight.js": "^11.11.1",
     "js-cookie": "^3.0.5",
     "markdown-it": "^14.1.0",
-    "materialize-css": "^1.0.0",
-    "materialize-css-helper": "^1.0.9",
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vuetify": "3.10.5"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
     "@types/markdown-it": "^14.1.2",
-    "@types/materialize-css": "^1.0.14",
     "@types/node": "^22.15.29",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
@@ -36,9 +35,11 @@
     "eslint-plugin-prettier": "^5.4.1",
     "eslint-plugin-vue": "9",
     "prettier": "^3.5.3",
+    "sass": "^1.89.2",
     "terser": "^5.40.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
+    "vite-plugin-vuetify": "^2.1.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vue-tsc": "^2.2.10"
   }
