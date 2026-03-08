@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/session"
 )
 
-func ApiRouter(routerGroup fiber.Router, store *session.Store) {
+func ApiV1Router(routerGroup fiber.Router, store *session.Store) {
 	routerGroup.Get("/directory", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.GetDirectory(c)
 	})

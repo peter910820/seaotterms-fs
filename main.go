@@ -88,10 +88,12 @@ func main() {
 
 	// route group
 	apiGroup := app.Group("/api") // main api route group
+	apiV1Group := apiGroup.Group("/v1")
+	apiV2Group := apiGroup.Group("/v2")
 	// api router
-	router.ApiRouter(apiGroup, store)
-	router.ZipRouter(apiGroup, store)
-	router.LoginRouter(apiGroup, store)
+	router.ApiV1Router(apiV1Group, store)
+	router.ZipRouter(apiV2Group, store)
+	router.LoginRouter(apiV2Group, store)
 
 	/* --------------------------------- */
 	// match all routes

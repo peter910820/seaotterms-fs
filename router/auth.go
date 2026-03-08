@@ -9,6 +9,7 @@ import (
 
 func LoginRouter(routerGroup fiber.Router, store *session.Store) {
 	loginGroup := routerGroup.Group("/login")
+
 	loginGroup.Post("/", func(c fiber.Ctx) error {
 		return service.Login(c, store)
 	})
