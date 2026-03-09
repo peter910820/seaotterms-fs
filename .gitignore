@@ -52,7 +52,8 @@ backend/go.work
 backend/go.work.sum
 
 # env file
-.env
+.env*
+!.env.example
 
 # test floder
 /zip/

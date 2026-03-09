@@ -80,7 +80,7 @@ func main() {
 
 	app.Get("/resource*", static.New("./resource"))
 
-	app.Use(cors.New(cors.Config{AllowOrigins: []string{"http://localhost:8080"},
+	app.Use(cors.New(cors.Config{AllowOrigins: []string{os.Getenv("ALLOW_ORIGINS")},
 		AllowMethods: []string{"POST"}}))
 
 	// static folder
