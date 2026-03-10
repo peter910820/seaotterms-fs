@@ -11,6 +11,6 @@ func UploadRouter(routerGroup fiber.Router, store *session.Store) {
 	uploadGroup := routerGroup.Group("/upload")
 
 	uploadGroup.Post("/", func(c fiber.Ctx) error {
-		return service.UploadFileV2(c)
+		return service.Upload(c)
 	})
 }

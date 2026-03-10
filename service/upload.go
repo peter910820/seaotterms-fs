@@ -15,7 +15,7 @@ import (
 
 const MaxUploadSize = 500 * 1024 * 1024 // 500MB
 
-func UploadFileV2(c fiber.Ctx) error {
+func Upload(c fiber.Ctx) error {
 	directory := strings.TrimSpace(c.FormValue("directory"))
 	if !isValidPathStructure(directory) {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的路徑格式", nil))

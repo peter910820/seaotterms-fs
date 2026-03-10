@@ -83,14 +83,11 @@ func main() {
 
 	// route group
 	apiGroup := app.Group("/api") // main api route group
-	apiV1Group := apiGroup.Group("/v1")
-	apiV2Group := apiGroup.Group("/v2")
 	// api router
-	router.ApiV1Router(apiV1Group, store)
-	router.ZipRouter(apiV2Group, store)
-	router.FileRouter(apiV2Group, store)
-	router.UploadRouter(apiV2Group, store)
-	router.LoginRouter(apiV2Group, store)
+	router.LoginRouter(apiGroup, store)
+	router.FileRouter(apiGroup, store)
+	router.UploadRouter(apiGroup, store)
+	router.ZipRouter(apiGroup, store)
 
 	// match all routes
 	app.Get("*", func(c fiber.Ctx) error {
