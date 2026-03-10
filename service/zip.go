@@ -19,7 +19,7 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 	if folderName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("請提供資料夾名稱", nil))
 	}
-	rootPath := os.Getenv("FILE_PATH")
+	rootPath := os.Getenv("RESOURCE_PATH")
 	folderName = filepath.Clean(folderName)
 
 	// prevent path traversal
@@ -49,7 +49,7 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 
 // zip all floder files
 func ZipAllFiles(c fiber.Ctx) error {
-	rootPath := os.Getenv("FILE_PATH")
+	rootPath := os.Getenv("RESOURCE_PATH")
 
 	timestamp := time.Now().Format("200601021504")
 	zipFileName := "root-" + timestamp + ".zip"

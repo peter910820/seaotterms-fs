@@ -10,7 +10,7 @@ import (
 )
 
 func GetFilesV2(c fiber.Ctx, subPath string) error {
-	rootPath := os.Getenv("FILE_PATH")
+	rootPath := os.Getenv("RESOURCE_PATH")
 	files := []string{}
 	directories := []string{}
 
