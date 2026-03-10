@@ -57,11 +57,11 @@ func Login(c fiber.Ctx, store *session.Store) error {
 	slog.Info(fmt.Sprintf("Username %s login success", data.Username))
 
 	loginResp := model.LoginResponse{
-		Username:   userData.Username,
-		Email:      userData.Email,
-		Avatar:     userData.Avatar,
-		Management: userData.IsAdmin,
-		CreatedAt:  userData.CreatedAt,
+		Username:  userData.Username,
+		Email:     userData.Email,
+		Avatar:    userData.Avatar,
+		IsAdmin:   userData.IsAdmin,
+		CreatedAt: userData.CreatedAt,
 	}
 
 	return c.JSON(model.GenerateResponse("Login Success", loginResp))
