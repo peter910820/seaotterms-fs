@@ -19,11 +19,12 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      output: { // 檔名完全使用hash
-        entryFileNames: 'assets/[hash].js',
-        chunkFileNames: 'assets/[hash].js',
-        assetFileNames: 'assets/[hash].[ext]',
-      }
+      output: {
+        // 檔名完全使用hash
+        entryFileNames: "assets/[hash].js",
+        chunkFileNames: "assets/[hash].js",
+        assetFileNames: "assets/[hash].[ext]",
+      },
     },
     minify: "terser", // 用 terser 取代預設的 esbuild
     terserOptions: {
