@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gofiber/fiber/v3/middleware/static"
-
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/session"
@@ -16,7 +14,9 @@ import (
 	"github.com/lmittmann/tint"
 
 	"seaottermsfs/config"
+	"seaottermsfs/model"
 	"seaottermsfs/router"
+	"seaottermsfs/service"
 
 	seaottermsdb "seaotterms-db"
 )
@@ -32,9 +32,6 @@ var (
 )
 
 func init() {
-	os.MkdirAll("./resource", os.ModePerm)
-	os.MkdirAll("./resource/image", os.ModePerm)
-	os.MkdirAll("./resource/test", os.ModePerm)
 	err := godotenv.Load()
 	if err != nil {
 		slog.Error(err.Error())
@@ -75,16 +72,14 @@ func main() {
 
 	app := fiber.New(
 		fiber.Config{
-			BodyLimit: 20 * 1024 * 1024, // 20MB
+			BodyLimit: service.MaxUploadSize,
 		})
 
-	app.Get("/resource*", static.New("./resource"))
-
-	app.Use(cors.New(cors.Config{AllowOrigins: []string{os.Getenv("ALLOW_ORIGINS")},
-		AllowMethods: []string{"POST"}}))
-
-	// static folder
-	app.Use("/", static.New(frontendFolder))
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{os.Getenv("ALLOW_ORIGINS")},
+		AllowMethods:     []string{"POST", "GET"},
+		AllowCredentials: true,
+	}))
 
 	// route group
 	apiGroup := app.Group("/api") // main api route group
@@ -94,12 +89,12 @@ func main() {
 	router.ApiV1Router(apiV1Group, store)
 	router.ZipRouter(apiV2Group, store)
 	router.FileRouter(apiV2Group, store)
+	router.UploadRouter(apiV2Group, store)
 	router.LoginRouter(apiV2Group, store)
 
-	/* --------------------------------- */
 	// match all routes
 	app.Get("*", func(c fiber.Ctx) error {
-		return c.SendFile(frontendFolder + "/index.html")
+		return c.Status(fiber.StatusNotFound).JSON(model.GenerateResponse("404 not found", nil))
 	})
 
 	addr := fmt.Sprintf("127.0.0.1:%s", os.Getenv("PORT"))
