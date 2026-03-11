@@ -38,9 +38,10 @@ func isLogin(c fiber.Ctx, store *session.Store, isAdminRequired bool) bool {
 		slog.Error(err.Error())
 		os.Exit(1)
 	}
-	isAdmin := sess.Get("isAdmin").(bool)
-	if isAdminRequired && !isAdmin {
+	isAdmin, ok := sess.Get("isAdmin").(bool)
+	if !ok || (isAdminRequired && !isAdmin) {
 		return false
 	}
+
 	return true
 }
