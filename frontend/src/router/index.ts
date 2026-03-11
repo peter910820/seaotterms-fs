@@ -4,7 +4,13 @@ import type { RouteRecordRaw } from "vue-router";
 import MainView from "../views/MainView.vue";
 import Cookies from "js-cookie";
 
-import { getDataEntryPoint } from "@/router/guard";
+import { useAuthStore } from "@/store/auth";
+
+// 同步登入狀態
+const syncSessionFromCookie = () => {
+  const hasCookie = Cookies.get("session_id") !== undefined;
+  useAuthStore().setSession(hasCookie);
+};
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -15,41 +21,35 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "",
         name: "home",
-        component: () => import("@/components/MainPage.vue"),
+        component: () => import("@/pages/MainPage.vue"),
         beforeEnter: (_to, _from, next) => {
-          if (Cookies.get("session_id") !== undefined) {
-            next();
-          } else {
-            next("/login");
+          syncSessionFromCookie();
+          if (Cookies.get("session_id") === undefined) {
+            useAuthStore().openLoginModal();
           }
+          next();
         },
-      },
-      {
-        path: "/login",
-        name: "login",
-        component: () => import("@/components/LoginPage.vue"),
       },
       {
         path: "/folder",
         name: "folder",
-        component: () => import("@/components/FolderPage.vue"),
-        beforeEnter: async (to, from, next) => getDataEntryPoint(to, from, next),
+        component: () => import("@/pages/FolderPage.vue"),
       },
       {
         path: "/markdown-writer",
         name: "markdown-writer",
-        component: () => import("@/components/MdWriter.vue"),
+        component: () => import("@/pages/MdWriter.vue"),
       },
       {
         path: "/error",
         name: "error",
-        component: () => import("@/components/ErrorPage.vue"),
+        component: () => import("@/pages/ErrorPage.vue"),
       },
       // match all route
       {
         path: ":pathMatch(.*)*",
         name: "notFound",
-        component: () => import("@/components/ErrorPage.vue"),
+        component: () => import("@/pages/ErrorPage.vue"),
       },
     ],
   },
@@ -58,6 +58,11 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((_to, _from, next) => {
+  syncSessionFromCookie();
+  next();
 });
 
 export default router;
