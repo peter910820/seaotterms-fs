@@ -1,3 +1,54 @@
+<template>
+  <v-dialog v-model="dialog" max-width="600" persistent @click:outside="dialog = false">
+    <v-card class="login-card">
+      <v-card-title class="login-title">
+        <v-icon size="large" class="mr-3">mdi-login</v-icon>
+        登入
+      </v-card-title>
+
+      <v-divider />
+
+      <v-card-text class="pa-8">
+        <v-form @submit.prevent="handleSubmit">
+          <v-text-field
+            v-model="request.username"
+            label="使用者名稱"
+            prepend-inner-icon="mdi-account-circle"
+            variant="outlined"
+            required
+            class="mb-4"
+            density="comfortable"
+            :rules="[(v) => !!v || '請輸入使用者名稱']"
+          />
+
+          <v-text-field
+            v-model="request.password"
+            label="密碼"
+            type="password"
+            prepend-inner-icon="mdi-lock"
+            variant="outlined"
+            required
+            class="mb-2"
+            density="comfortable"
+            :rules="[(v) => !!v || '請輸入密碼']"
+          />
+        </v-form>
+      </v-card-text>
+
+      <v-divider />
+
+      <v-card-actions class="pa-6">
+        <v-spacer />
+        <v-btn variant="text" @click="dialog = false" class="mr-2">取消</v-btn>
+        <v-btn color="primary" variant="elevated" :loading="loading" @click="handleSubmit" size="large">
+          登入
+          <v-icon end>mdi-send</v-icon>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -66,57 +117,6 @@ const handleSubmit = async () => {
   }
 };
 </script>
-
-<template>
-  <v-dialog v-model="dialog" max-width="600" persistent @click:outside="dialog = false">
-    <v-card class="login-card">
-      <v-card-title class="login-title">
-        <v-icon size="large" class="mr-3">mdi-login</v-icon>
-        登入
-      </v-card-title>
-
-      <v-divider />
-
-      <v-card-text class="pa-8">
-        <v-form @submit.prevent="handleSubmit">
-          <v-text-field
-            v-model="request.username"
-            label="使用者名稱"
-            prepend-inner-icon="mdi-account-circle"
-            variant="outlined"
-            required
-            class="mb-4"
-            density="comfortable"
-            :rules="[(v) => !!v || '請輸入使用者名稱']"
-          />
-
-          <v-text-field
-            v-model="request.password"
-            label="密碼"
-            type="password"
-            prepend-inner-icon="mdi-lock"
-            variant="outlined"
-            required
-            class="mb-2"
-            density="comfortable"
-            :rules="[(v) => !!v || '請輸入密碼']"
-          />
-        </v-form>
-      </v-card-text>
-
-      <v-divider />
-
-      <v-card-actions class="pa-6">
-        <v-spacer />
-        <v-btn variant="text" @click="dialog = false" class="mr-2">取消</v-btn>
-        <v-btn color="primary" variant="elevated" :loading="loading" @click="handleSubmit" size="large">
-          登入
-          <v-icon end>mdi-send</v-icon>
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</template>
 
 <style scoped>
 .login-card {
