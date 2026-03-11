@@ -15,10 +15,9 @@ import { storeToRefs } from "pinia";
 
 import NavBar from "@/components/NavBar.vue";
 import LoginModal from "@/components/LoginModal.vue";
-import { useLoginModal } from "@/store/loginModal";
+import { useAuthStore } from "@/store/auth";
 
-const loginModalStore = useLoginModal();
-const { showLoginModal } = storeToRefs(loginModalStore);
+const { showLoginModal } = storeToRefs(useAuthStore());
 </script>
 
 <style scoped>

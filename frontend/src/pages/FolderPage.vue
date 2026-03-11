@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import axios from "axios";
-import type { FileResponseType } from "@/types/response";
+import type { FileResponseData, ResponseType } from "@/types/response";
 
 const API_TIMEOUT_MS = 5000;
 const FILE_API_BASE = `${import.meta.env.VITE_API_URL}/file`;
@@ -122,10 +122,10 @@ const fileUrl = (fileName: string): string => {
   return path ? `${CDN_BASE}/${path}` : CDN_BASE;
 };
 
-const fetchFileList = async (path: string): Promise<FileResponseType | null> => {
+const fetchFileList = async (path: string): Promise<ResponseType<FileResponseData> | null> => {
   const url = path ? `${FILE_API_BASE}/${path}` : FILE_API_BASE;
   try {
-    const response = await axios.get<FileResponseType>(url, { timeout: API_TIMEOUT_MS });
+    const response = await axios.get<ResponseType<FileResponseData>>(url, { timeout: API_TIMEOUT_MS });
     if (response?.status === 200 && response.data?.data) return response.data;
     return null;
   } catch {
