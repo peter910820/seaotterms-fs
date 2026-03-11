@@ -1,6 +1,7 @@
 package router
 
 import (
+	"seaottermsfs/middleware"
 	"seaottermsfs/service"
 
 	"github.com/gofiber/fiber/v3"
@@ -10,7 +11,7 @@ import (
 func UploadRouter(routerGroup fiber.Router, store *session.Store) {
 	uploadGroup := routerGroup.Group("/upload")
 
-	uploadGroup.Post("/", func(c fiber.Ctx) error {
+	uploadGroup.Post("/", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		return service.Upload(c)
 	})
 }

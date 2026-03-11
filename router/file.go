@@ -1,6 +1,7 @@
 package router
 
 import (
+	"seaottermsfs/middleware"
 	"seaottermsfs/service"
 
 	"github.com/gofiber/fiber/v3"
@@ -15,7 +16,7 @@ func FileRouter(routerGroup fiber.Router, store *session.Store) {
 		return service.GetFiles(c, path)
 	})
 
-	fileGroup.Delete("/*", func(c fiber.Ctx) error {
+	fileGroup.Delete("/*", middleware.LoginRequired(store), func(c fiber.Ctx) error {
 		path := c.Params("*")
 		return service.DeleteFile(c, path)
 	})
