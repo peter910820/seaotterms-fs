@@ -12,6 +12,11 @@ func FileRouter(routerGroup fiber.Router, store *session.Store) {
 
 	fileGroup.Get("/*", func(c fiber.Ctx) error {
 		path := c.Params("*")
-		return service.GetFilesV2(c, path)
+		return service.GetFiles(c, path)
+	})
+
+	fileGroup.Delete("/*", func(c fiber.Ctx) error {
+		path := c.Params("*")
+		return service.DeleteFile(c, path)
 	})
 }
