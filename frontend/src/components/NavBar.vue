@@ -18,14 +18,13 @@
       <v-icon start size="small">{{ item.icon }}</v-icon>
       {{ item.title }}
     </v-btn>
-    <UserAvatarName
-      v-if="hasSession && user"
-      :avatar-url="avatarUrl"
-      :username="user.username"
-      :size="36"
-      class="d-none d-md-flex mr-3 nav-bar-user"
-      name-class="nav-bar-user-name"
-    />
+    <div v-if="hasSession && user" class="d-none d-md-flex align-center gap-3 mr-3 nav-bar-user">
+      <v-avatar color="primary" size="36">
+        <v-img v-if="avatarUrl" :src="avatarUrl" cover />
+        <v-icon v-else size="20">mdi-account</v-icon>
+      </v-avatar>
+      <span class="text-body2 text-medium-emphasis nav-bar-user-name">{{ user.username }}</span>
+    </div>
     <v-btn v-if="hasSession" variant="text" color="primary" class="d-none d-md-inline-flex" @click="handleLogout">
       <v-icon start size="small">mdi-logout</v-icon>
       登出
@@ -36,14 +35,13 @@
     </v-btn>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer" :mobile-breakpoint="960" temporary location="start" class="fs-drawer">
-    <UserAvatarName
-      v-if="hasSession && user"
-      :avatar-url="avatarUrl"
-      :username="user.username"
-      :size="40"
-      class="pa-3 nav-drawer-user"
-      name-class="nav-drawer-user-name"
-    />
+    <div v-if="hasSession && user" class="pa-3 d-flex align-center gap-3 nav-drawer-user">
+      <v-avatar color="primary" size="40">
+        <v-img v-if="avatarUrl" :src="avatarUrl" cover />
+        <v-icon v-else size="24">mdi-account</v-icon>
+      </v-avatar>
+      <span class="text-body2 text-medium-emphasis nav-drawer-user-name">{{ user.username }}</span>
+    </div>
     <v-divider v-if="hasSession && user" class="my-0" />
     <v-list density="compact" nav>
       <v-list-item
@@ -70,7 +68,6 @@ import { useDisplay } from "vuetify";
 import { storeToRefs } from "pinia";
 import Cookies from "js-cookie";
 
-import UserAvatarName from "@/components/UserAvatarName.vue";
 import { useAuthStore } from "@/store/auth";
 
 const route = useRoute();
@@ -108,6 +105,18 @@ const isActive = (path: string) => {
 </script>
 
 <style scoped>
+.nav-bar-user,
+.nav-drawer-user {
+  min-width: 0;
+}
+.nav-bar-user-name,
+.nav-drawer-user-name {
+  min-width: 0;
+  margin-left: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .nav-bar-user-name {
   max-width: 120px;
 }
