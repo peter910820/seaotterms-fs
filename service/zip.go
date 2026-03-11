@@ -151,5 +151,6 @@ func handleZipCreation(c fiber.Ctx, rootDir, targetDir, zipFileName string) erro
 		return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("壓縮過程發生錯誤，請聯繫管理員", nil))
 	}
 
+	slog.Info("壓縮成功: " + zipFileName)
 	return c.Status(fiber.StatusOK).JSON(model.GenerateResponse("壓縮成功", zipFileName))
 }

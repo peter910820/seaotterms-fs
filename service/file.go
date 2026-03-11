@@ -19,12 +19,14 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 	// prevent path traversal
 	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(subPath))
 	if !isPathSafe {
+		slog.Error("invalid file path: " + subPath)
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}
 
 	// traverse the current level only
 	entries, err := os.ReadDir(sourcePath)
 	if err != nil {
+		slog.Error(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("無法讀取目錄: "+err.Error(), nil))
 	}
 
@@ -46,6 +48,7 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 		Directories: directories,
 	}
 
+	slog.Info("GetFiles API成功: " + subPath)
 	return c.Status(fiber.StatusOK).JSON(model.GenerateResponse("success", result))
 }
 

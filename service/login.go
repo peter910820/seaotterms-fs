@@ -50,6 +50,7 @@ func Login(c fiber.Ctx, store *session.Store) error {
 		os.Exit(1)
 	}
 	sess.Set("username", data.Username)
+	sess.Set("isAdmin", userData.IsAdmin)
 	if err := sess.Save(); err != nil {
 		slog.Error(err.Error())
 		os.Exit(1)
