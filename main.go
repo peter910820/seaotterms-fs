@@ -85,6 +85,7 @@ func main() {
 	// api router
 	router.LoginRouter(apiGroup, store)
 	router.FileRouter(apiGroup, store)
+	router.FolderRouter(apiGroup, store)
 	router.UploadRouter(apiGroup, store)
 	router.ZipRouter(apiGroup, store)
 
