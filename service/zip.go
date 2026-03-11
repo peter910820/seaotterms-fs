@@ -14,7 +14,9 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-// zip target floder files
+// 壓縮目標資料夾
+//
+// TODO: 支援多層資料夾
 func ZipFiles(c fiber.Ctx, folderName string) error {
 	if folderName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("請提供資料夾名稱", nil))
@@ -23,10 +25,8 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 	folderName = filepath.Clean(folderName)
 
 	// prevent path traversal
-	// verify that the parsed path is actually inside rootPath
-	sourcePath := filepath.Join(rootPath, folderName)
-	rel, err := filepath.Rel(rootPath, sourcePath)
-	if err != nil || strings.Contains(rel, "..") || rel == "." {
+	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(folderName))
+	if !isPathSafe {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}
 

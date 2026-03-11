@@ -6,18 +6,18 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/gofiber/fiber/v3"
 
 	"seaottermsfs/model"
+	"seaottermsfs/utils"
 )
 
 const MaxUploadSize = 500 * 1024 * 1024 // 500MB
 
 func Upload(c fiber.Ctx) error {
 	directory := strings.TrimSpace(c.FormValue("directory"))
-	if !isValidPathStructure(directory) {
+	if !utils.IsValidPathStructure(directory) {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的路徑格式", nil))
 	}
 	file, err := c.FormFile("file")
@@ -39,11 +39,9 @@ func Upload(c fiber.Ctx) error {
 	}
 
 	// prevent path traversal
-	// verify that the parsed path is actually inside rootPath
-	targetDir := filepath.Join(rootPath, directory)
-	relDir, err := filepath.Rel(rootPath, targetDir)
-	if err != nil || strings.Contains(relDir, "..") {
-		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
+	isPathSafe, targetDir := utils.IsPathSafe(rootPath, directory)
+	if !isPathSafe {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}
 
 	// filename
@@ -94,29 +92,4 @@ func Upload(c fiber.Ctx) error {
 
 	slog.Info(fmt.Sprintf("%s 上傳成功，大小為 %d Bytes", baseName, file.Size))
 	return c.Status(fiber.StatusOK).JSON(model.GenerateResponse("上傳成功", nil))
-}
-
-func isValidPathStructure(s string) bool {
-	if !utf8.ValidString(s) {
-		return false
-	}
-	if strings.Contains(s, "\x00") || strings.Contains(s, "..") {
-		return false
-	}
-
-	trimmed := strings.TrimSpace(s)
-	if trimmed == "" {
-		return false
-	}
-	for _, r := range trimmed {
-		switch {
-		case r == '/' || r == '-' || r == '_' || r == '.':
-			continue
-		case r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9':
-			continue
-		default:
-			return false
-		}
-	}
-	return true
 }

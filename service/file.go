@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"seaottermsfs/model"
+	"seaottermsfs/utils"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
@@ -16,11 +17,9 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 	directories := []string{}
 
 	// prevent path traversal
-	// verify that the parsed path is actually inside rootPath
-	sourcePath := filepath.Join(rootPath, filepath.Clean(subPath))
-	rel, err := filepath.Rel(rootPath, sourcePath)
-	if err != nil || strings.Contains(rel, "..") {
-		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
+	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(subPath))
+	if !isPathSafe {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}
 
 	// traverse the current level only
@@ -66,9 +65,9 @@ func DeleteFile(c fiber.Ctx, subPath string) error {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}
 
-	targetPath := filepath.Join(rootPath, subPath)
-	rel, err := filepath.Rel(rootPath, targetPath)
-	if err != nil || strings.Contains(rel, "..") {
+	// prevent path traversal
+	isPathSafe, targetPath := utils.IsPathSafe(rootPath, subPath)
+	if !isPathSafe {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}
 
