@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -91,6 +92,21 @@ func main() {
 	app.Get("*", func(c fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(model.GenerateResponse("404 not found", nil))
 	})
+
+	// 每 12 小時清除過期 session (強制登出所有人)
+	go func() {
+		ticker := time.NewTicker(12 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			if err := store.Reset(ctx); err != nil {
+				slog.Error("session cleanup failed", "error", err)
+			} else {
+				slog.Info("session store reset (expired sessions cleared)")
+			}
+			cancel()
+		}
+	}()
 
 	addr := fmt.Sprintf("127.0.0.1:%s", os.Getenv("PORT"))
 	if err := app.Listen(addr); err != nil {
