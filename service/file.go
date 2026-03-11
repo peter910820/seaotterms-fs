@@ -48,7 +48,11 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 		Directories: directories,
 	}
 
-	slog.Info("GetFiles API成功: " + subPath)
+	if strings.TrimSpace(subPath) == "" {
+		slog.Info("GetFiles API成功: ./")
+	} else {
+		slog.Info("GetFiles API成功: " + subPath)
+	}
 	return c.Status(fiber.StatusOK).JSON(model.GenerateResponse("success", result))
 }
 
