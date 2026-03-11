@@ -61,7 +61,7 @@ func DeleteFile(c fiber.Ctx, subPath string) error {
 	}
 	rootPath = filepath.Clean(rootPath)
 
-	subPath = filepath.Clean(strings.ReplaceAll(strings.TrimSpace(subPath), "\\", "/"))
+	subPath = filepath.Clean(filepath.ToSlash(strings.TrimSpace(subPath)))
 	if subPath == "" || subPath == "." || strings.Contains(subPath, "..") {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}

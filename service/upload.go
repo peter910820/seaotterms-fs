@@ -33,8 +33,7 @@ func Upload(c fiber.Ctx) error {
 	}
 	rootPath = filepath.Clean(rootPath)
 
-	directory = strings.ReplaceAll(directory, "\\", "/")
-	directory = filepath.Clean(directory)
+	directory = filepath.Clean(filepath.ToSlash(directory))
 	if directory == "." {
 		directory = ""
 	}
@@ -47,8 +46,13 @@ func Upload(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}
 
-	// filename must not contain path information
-	baseName := filepath.Base(file.Filename)
+	// filename
+	baseName := strings.TrimSpace(c.FormValue("filename"))
+	if baseName == "" {
+		baseName = filepath.Base(file.Filename)
+	} else {
+		baseName = filepath.Base(baseName)
+	}
 	if baseName == "" || baseName == "." {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔名", nil))
 	}

@@ -57,3 +57,6 @@ backend/go.work.sum
 
 # test floder
 /zip/
+
+# build bat
+build.bat
