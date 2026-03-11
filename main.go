@@ -22,11 +22,9 @@ import (
 )
 
 var (
-	// set frontendFolder
-	frontendFolder string = "./dist"
 	// init store(session)
 	store = session.NewStore(session.Config{
-		IdleTimeout: 12 * time.Hour,
+		IdleTimeout: 6 * time.Hour,
 		// CookieHTTPOnly: true,
 	})
 )
