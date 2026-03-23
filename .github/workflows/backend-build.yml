@@ -41,19 +41,19 @@ jobs:
 
       - name: Link Local Dependencies
         run: |
-            cd main
-            if [ -d "../seaottermsdb" ]; then
-              echo "Linking seaotterms-db to ../seaottermsdb"
-              go mod edit -replace seaotterms-db=../seaottermsdb
-            fi
-            
-            echo "Updated go.mod content:"
-            cat go.mod
+          cd main
+          if [ -d "../seaottermsdb" ]; then
+            echo "Linking seaotterms-db to ../seaottermsdb"
+            go mod edit -replace seaotterms-db=../seaottermsdb
+          fi
+
+          echo "Updated go.mod content:"
+          cat go.mod
 
       - name: Build
         run: |
           cd main
           go build -v ./...
 
-      # - name: Test
-      #   run: go test -v ./...
+      - name: Test
+        run: go test -v ./service
