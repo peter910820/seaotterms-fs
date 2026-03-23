@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" aria-label="選單" />
     <v-toolbar-title class="text-primary font-weight-bold d-flex align-center">
       <v-icon start color="primary">mdi-folder-network</v-icon>
-      海獺的資源伺服器
+      {{ siteTitle }}
     </v-toolbar-title>
     <v-spacer />
     <v-btn
@@ -73,6 +73,7 @@ import { useAuthStore } from "@/store/auth";
 const route = useRoute();
 const { mobile } = useDisplay();
 const drawer = ref(false);
+const siteTitle = import.meta.env.VITE_SITE_TITLE || "海獺的資源伺服器";
 
 const authStore = useAuthStore();
 const { hasSession, user } = storeToRefs(authStore);
