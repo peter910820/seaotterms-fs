@@ -69,7 +69,19 @@
               </template>
               <v-list-item-title class="text-truncate">{{ name }}</v-list-item-title>
               <template #append>
-                <v-icon size="small">mdi-open-in-new</v-icon>
+                <v-btn
+                  v-if="hasSession"
+                  icon
+                  variant="text"
+                  size="small"
+                  color="error"
+                  class="ml-1"
+                  aria-label="刪除"
+                  @click.stop.prevent="openDeleteConfirm(name)"
+                >
+                  <v-icon size="small">mdi-delete-outline</v-icon>
+                </v-btn>
+                <v-icon v-else size="small">mdi-open-in-new</v-icon>
               </template>
             </v-list-item>
           </v-list>
@@ -79,24 +91,67 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-dialog v-model="deleteDialog" max-width="400" persistent>
+      <v-card>
+        <v-card-title class="text-subtitle-1">確認刪除</v-card-title>
+        <v-card-text>確定要刪除「{{ deleteTargetName }}」嗎？此操作無法復原。</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="deleteDialog = false">取消</v-btn>
+          <v-btn color="error" variant="elevated" :loading="deleting" @click="confirmDelete">確定刪除</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref, computed } from "vue";
+import axios from "axios";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 
 import { useFileList } from "@/composables/useFileList";
+import { useAuthStore } from "@/store/auth";
 
+const router = useRouter();
+const { hasSession } = storeToRefs(useAuthStore());
 const CDN_BASE = (import.meta.env.VITE_CDN_URL ?? "").replace(/\/$/, "");
 
 const { currentPath, currentDirectories, currentFiles, error, pathLabel, parentPath, loadPath, goIntoFolder } =
   useFileList();
+
+const deleteDialog = ref(false);
+const fileToDelete = ref<string | null>(null);
+const deleting = ref(false);
+const deleteTargetName = computed(() => fileToDelete.value?.split("/").pop() ?? "");
 
 const isImage = (name: string): boolean => /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(name);
 
 const fileUrl = (fileName: string): string => {
   const path = currentPath.value ? `${currentPath.value}/${fileName}` : fileName;
   return path ? `${CDN_BASE}/${path}` : CDN_BASE;
+};
+
+const openDeleteConfirm = (fileName: string) => {
+  fileToDelete.value = currentPath.value ? `${currentPath.value}/${fileName}` : fileName;
+  deleteDialog.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!fileToDelete.value) return;
+  deleting.value = true;
+  try {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/file/${fileToDelete.value}`);
+    deleteDialog.value = false;
+    fileToDelete.value = null;
+    await loadPath(currentPath.value);
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err) && err.response?.data?.message) alert(err.response.data.message);
+    else router.push("/error");
+  } finally {
+    deleting.value = false;
+  }
 };
 
 onMounted(() => loadPath(""));
