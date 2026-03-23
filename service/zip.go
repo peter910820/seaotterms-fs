@@ -20,10 +20,12 @@ import (
 // TODO: 支援多層資料夾
 func ZipFiles(c fiber.Ctx, folderName string) error {
 	if folderName == "" {
+		slog.Warn("ZipFiles API失敗: 未提供資料夾名稱")
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("請提供資料夾名稱", nil))
 	}
 	decodedFolderName, err := url.PathUnescape(strings.TrimSpace(folderName))
 	if err != nil {
+		slog.Warn("ZipFiles API失敗: 無效的資料夾路徑編碼")
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}
 
@@ -33,6 +35,7 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 	// prevent path traversal
 	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(folderName))
 	if !isPathSafe {
+		slog.Warn("ZipFiles API失敗: 路徑安全檢查未通過")
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}
 
@@ -40,9 +43,10 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 	folderExists, err := utils.CheckFolderExists(sourcePath)
 	if !folderExists {
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error("ZipFiles API失敗: 後端系統異常: " + err.Error())
 			return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("後端系統異常，請聯絡管理員", nil))
 		}
+		slog.Warn("ZipFiles API失敗: 壓縮目標資料夾不存在")
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("壓縮的目標資料夾不存在", nil))
 	}
 
@@ -68,7 +72,7 @@ func ZipAllFiles(c fiber.Ctx) error {
 func handleZipCreation(c fiber.Ctx, rootDir, targetDir, zipFileName string) error {
 	zipDir := filepath.Join(rootDir, "zip")
 	if err := os.MkdirAll(zipDir, 0755); err != nil {
-		slog.Error(err.Error())
+		slog.Error("Zip API失敗: 建立壓縮目錄失敗: " + err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("後端異常，請聯繫管理員", nil))
 	}
 
@@ -76,7 +80,7 @@ func handleZipCreation(c fiber.Ctx, rootDir, targetDir, zipFileName string) erro
 
 	newZipFile, err := os.Create(zipFilePath)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("Zip API失敗: 建立壓縮檔失敗: " + err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("後端異常，請聯繫管理員", nil))
 	}
 	defer newZipFile.Close()
@@ -153,7 +157,7 @@ func handleZipCreation(c fiber.Ctx, rootDir, targetDir, zipFileName string) erro
 		return err
 	})
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("Zip API失敗: 壓縮過程發生錯誤: " + err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(model.GenerateResponse("壓縮過程發生錯誤，請聯繫管理員", nil))
 	}
 

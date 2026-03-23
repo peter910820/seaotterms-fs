@@ -21,7 +21,7 @@ func Login(c fiber.Ctx, store *session.Store) error {
 	var data model.LoginRequest
 
 	if err := c.Bind().Body(&data); err != nil {
-		slog.Error(err.Error())
+		slog.Warn("Login API失敗: 請求格式錯誤: " + err.Error())
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 	}
 
@@ -29,10 +29,10 @@ func Login(c fiber.Ctx, store *session.Store) error {
 	if err != nil {
 		// user record not found
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Error("user not found")
+			slog.Warn("Login API失敗: 使用者不存在")
 			return c.Status(fiber.StatusNotFound).JSON(model.GenerateResponse("user not found", nil))
 		} else {
-			slog.Error(err.Error())
+			slog.Error("Login API失敗: 查詢使用者資料失敗: " + err.Error())
 			return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse(err.Error(), nil))
 		}
 	}
@@ -40,7 +40,7 @@ func Login(c fiber.Ctx, store *session.Store) error {
 	slog.Info(fmt.Sprintf("Username %s try to login", data.Username))
 	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(data.Password))
 	if err != nil {
-		slog.Error("login error, password not correct")
+		slog.Warn("Login API失敗: 密碼錯誤")
 		return c.Status(fiber.StatusUnauthorized).JSON(model.GenerateResponse(err.Error(), nil))
 	}
 	// set session
