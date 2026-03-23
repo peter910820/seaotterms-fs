@@ -56,4 +56,6 @@ jobs:
           go build -v ./...
 
       - name: Test
-        run: go test -v ./service
+        run: |
+          cd main
+          go test -v ./service
