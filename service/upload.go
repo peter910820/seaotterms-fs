@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,10 +17,15 @@ import (
 const MaxUploadSize = 500 * 1024 * 1024 // 500MB
 
 func Upload(c fiber.Ctx) error {
-	directory := strings.TrimSpace(c.FormValue("directory"))
+	directory, err := url.PathUnescape(strings.TrimSpace(c.FormValue("directory")))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的路徑格式", nil))
+	}
+	directory = strings.TrimSpace(directory)
 	if !utils.IsValidPathStructure(directory) {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的路徑格式", nil))
 	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		slog.Error(err.Error())
@@ -49,6 +55,10 @@ func Upload(c fiber.Ctx) error {
 	if baseName == "" {
 		baseName = filepath.Base(file.Filename)
 	} else {
+		baseName, err = url.PathUnescape(baseName)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔名", nil))
+		}
 		baseName = filepath.Base(baseName)
 	}
 	if baseName == "" || baseName == "." {

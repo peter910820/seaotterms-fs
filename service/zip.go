@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"io"
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"seaottermsfs/model"
@@ -21,8 +22,13 @@ func ZipFiles(c fiber.Ctx, folderName string) error {
 	if folderName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("請提供資料夾名稱", nil))
 	}
+	decodedFolderName, err := url.PathUnescape(strings.TrimSpace(folderName))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
+	}
+
 	rootPath := os.Getenv("RESOURCE_PATH")
-	folderName = filepath.Clean(folderName)
+	folderName = filepath.Clean(filepath.ToSlash(decodedFolderName))
 
 	// prevent path traversal
 	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(folderName))

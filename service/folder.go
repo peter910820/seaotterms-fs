@@ -2,6 +2,7 @@ package service
 
 import (
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +24,12 @@ func CreateFolder(c fiber.Ctx, subPath string) error {
 	}
 	rootPath = filepath.Clean(rootPath)
 
-	subPath = filepath.Clean(filepath.ToSlash(strings.TrimSpace(subPath)))
+	decodedPath, err := url.PathUnescape(strings.TrimSpace(subPath))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
+	}
+
+	subPath = filepath.Clean(filepath.ToSlash(decodedPath))
 	if subPath == "" || subPath == "." || strings.Contains(subPath, "..") {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的資料夾路徑", nil))
 	}

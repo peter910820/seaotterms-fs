@@ -2,6 +2,7 @@ package service
 
 import (
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"seaottermsfs/model"
@@ -16,8 +17,14 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 	files := []string{}
 	directories := []string{}
 
+	decodedPath, err := url.PathUnescape(strings.TrimSpace(subPath))
+	if err != nil {
+		slog.Error("invalid encoded file path: " + subPath)
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
+	}
+
 	// prevent path traversal
-	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(subPath))
+	isPathSafe, sourcePath := utils.IsPathSafe(rootPath, filepath.Clean(filepath.ToSlash(decodedPath)))
 	if !isPathSafe {
 		slog.Error("invalid file path: " + subPath)
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
@@ -48,10 +55,10 @@ func GetFiles(c fiber.Ctx, subPath string) error {
 		Directories: directories,
 	}
 
-	if strings.TrimSpace(subPath) == "" {
+	if strings.TrimSpace(decodedPath) == "" {
 		slog.Info("GetFiles API成功: ./")
 	} else {
-		slog.Info("GetFiles API成功: " + subPath)
+		slog.Info("GetFiles API成功: " + decodedPath)
 	}
 	return c.Status(fiber.StatusOK).JSON(model.GenerateResponse("success", result))
 }
@@ -67,7 +74,12 @@ func DeleteFile(c fiber.Ctx, subPath string) error {
 	}
 	rootPath = filepath.Clean(rootPath)
 
-	subPath = filepath.Clean(filepath.ToSlash(strings.TrimSpace(subPath)))
+	decodedPath, err := url.PathUnescape(strings.TrimSpace(subPath))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
+	}
+
+	subPath = filepath.Clean(filepath.ToSlash(decodedPath))
 	if subPath == "" || subPath == "." || strings.Contains(subPath, "..") {
 		return c.Status(fiber.StatusBadRequest).JSON(model.GenerateResponse("無效的檔案路徑", nil))
 	}

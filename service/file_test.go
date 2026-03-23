@@ -68,8 +68,28 @@ func TestDeleteFile(t *testing.T) {
 			expectedCode: 400, // StatusBadRequest
 		},
 		{
+			name:         "Success deleting percent-encoded file path",
+			path:         "/file/folder%20A/test%20space.txt",
+			expectedCode: 200,
+			setupFunc: func() {
+				targetDir := filepath.Join(tmpDir, "folder A")
+				if err := os.MkdirAll(targetDir, 0755); err != nil {
+					t.Fatalf("failed to create encoded test dir: %v", err)
+				}
+				targetFile := filepath.Join(targetDir, "test space.txt")
+				if err := os.WriteFile(targetFile, []byte("encoded test"), 0644); err != nil {
+					t.Fatalf("failed to create encoded test file: %v", err)
+				}
+			},
+		},
+		{
 			name:         "Error path traversal",
 			path:         "/file/../file_test.go",
+			expectedCode: 400, // StatusBadRequest
+		},
+		{
+			name:         "Error encoded path traversal",
+			path:         "/file/%2e%2e/file_test.go",
 			expectedCode: 400, // StatusBadRequest
 		},
 		{
